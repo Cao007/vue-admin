@@ -1,52 +1,45 @@
 import { createWebHashHistory, createRouter } from 'vue-router'
 
-import HomeView from '@/views/HomeView.vue'
-import DataView from '@/views/DataView.vue'
-import FormView from '@/views/FormView.vue'
-import PermissionRoleView from '@/views/PermissionRoleView.vue'
-import PermissionBttonView from '@/views/PermissionBttonView.vue'
-import NotFoundView from '@/views/NotFoundView.vue'
+import Home from '@/components/Home/index.vue'
+import Welcome from '@/views/Welcome.vue'
+import Login from '@/views/Login.vue'
+import NotFound from '@/views/NotFound.vue'
 
 const routes = [
   {
-    path: '/',
     name: 'home',
-    component: HomeView
-  },
-  {
-    path: '/dataView',
-    name: 'dataView',
-    component: DataView
-  },
-  {
-    path: '/formView',
-    name: 'formView',
-    component: FormView
-  },
-  {
-    path: '/permission',
-    name: 'permission',
+    path: '/',
+    meta: {
+      title: '首页'
+    },
+    component: Home,
+    redirect: '/welcome',
     children: [
       {
-        path: 'permissionRoleView',
-        name: 'permissionRoleView',
-        component: PermissionRoleView,
-        // 让路由组件NewsItem，接受params参数或query参数
-        // props(route: any) {
-        //   return route.query;
-        // }
-      },
-      {
-        path: 'permissionBttonView',
-        name: 'permissionBttonView',
-        component: PermissionBttonView,
+        name: 'welcome',
+        path: '/welcome',
+        meta: {
+          title: '欢迎体验vue-admin'
+        },
+        component: Welcome
       }
     ]
   },
   {
+    name: 'login',
+    path: '/login',
+    meta: {
+      title: '登录'
+    },
+    component: Login
+  },
+  {
+    name: '404',
     path: '/:pathMatch(.*)*',
-    name: 'not-found',
-    component: NotFoundView
+    meta: {
+      title: '页面不存在'
+    },
+    component: NotFound
   }
 ]
 

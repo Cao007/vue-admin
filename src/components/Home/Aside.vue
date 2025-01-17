@@ -1,7 +1,5 @@
 <template>
-
   <el-aside :style="{ width: siderWidth, transition: 'width 0.3s ease' }">
-
     <el-scrollbar>
       <el-menu active-text-color="#ffd04b" background-color="#545c64" default-active="/" text-color="#fff"
         @open="handleOpen" @close="handleClose" router :collapse="isSidebarOpen">

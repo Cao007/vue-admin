@@ -24,13 +24,6 @@ import Main from './Main.vue'
 
 <style scoped lang="scss">
 .layout-container {
-
-  // 侧边栏
-
-  // header
-
-  // main
-
   .main-container {
     flex-direction: column;
   }

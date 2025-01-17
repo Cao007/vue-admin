@@ -3,7 +3,6 @@
     <el-scrollbar>
       <router-view></router-view>
     </el-scrollbar>
-
   </el-main>
 </template>
 
@@ -15,6 +14,5 @@ import { ref } from 'vue';
 <style scoped lang="scss">
 .el-main {
   height: calc(100vh - 60px);
-  // background-color: lightgreen;
 }
 </style>

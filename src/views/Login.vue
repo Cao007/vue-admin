@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>角色权限</h2>
+    <h1>登录页面</h1>
   </div>
 </template>
 

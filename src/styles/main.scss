@@ -1,1 +1,11 @@
-@use './base.scss';
+@use './reset.scss';
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+}
+
+*:not([class^='el-']) {
+  box-sizing: border-box;
+}

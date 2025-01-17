@@ -141,7 +141,6 @@
         </el-dialog>
       </el-col>
     </el-row>
-
   </el-header>
 </template>
 
@@ -253,6 +252,8 @@ const handleLogout = (done: () => void) => {
 
 <style scoped lang="scss">
 .el-header {
+
+  border-bottom: 1px solid #e6e6e6;
 
   .header-row {
     width: 100%;
