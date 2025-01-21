@@ -1,6 +1,7 @@
 <template>
   <el-main>
     <el-scrollbar>
+      <!-- 动态路由页面的出口 -->
       <router-view></router-view>
     </el-scrollbar>
   </el-main>

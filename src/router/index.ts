@@ -4,6 +4,9 @@ import Home from '@/components/Home/index.vue'
 import Welcome from '@/views/Welcome.vue'
 import Login from '@/views/Login.vue'
 import NotFound from '@/views/NotFound.vue'
+import DynamicRoutes from './config'
+import { useRouterStore } from '@/stores/router'
+import { storeToRefs } from 'pinia'
 
 const routes = [
   {
@@ -46,6 +49,32 @@ const routes = [
 const router = createRouter({
   history: createWebHashHistory(),
   routes,
+})
+
+// 全局前置守卫
+router.beforeEach((to, from, next) => {
+  const routerStore = useRouterStore()
+  const { isGetRouter } = storeToRefs(routerStore)
+  const { changeIsGetRouter } = routerStore
+
+  if (to.path === '/login') {
+    next()
+  } else {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      next('/login')
+    } else {
+      if (!isGetRouter.value) { // 判断是否已经获取过路由，动态添加路由
+        DynamicRoutes.forEach((item) => {
+          router.addRoute("home", item)
+        })
+        changeIsGetRouter(true)
+        next(to.fullPath)
+      } else {
+        next()
+      }
+    }
+  }
 })
 
 export default router;
