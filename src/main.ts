@@ -1,4 +1,6 @@
 import '@/styles/main.scss'
+import "element-plus/theme-chalk/src/message.scss"; // elmessage样式
+import 'element-plus/theme-chalk/src/message-box.scss' // elmessage-box样式
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from './App.vue'

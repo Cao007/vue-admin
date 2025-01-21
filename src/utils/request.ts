@@ -8,8 +8,15 @@ import { ElMessage } from 'element-plus';
 import router from '@/router';
 import storage from './storage';
 
-const TOKEN_INVALID = 'Token认证失败，请重新登录'
-const NETWORK_ERROR = '网络请求异常，请稍后重试'
+// 错误状态码枚举类型
+const enum ErrorCode {
+  SUCCESS = 200,
+  PARAM_ERROR = 10001, // 参数错误
+  USER_ACCOUNT_ERROR = 20001, //账号或密码错误
+  USER_LOGIN_ERROR = 30001, // 用户未登录
+  BUSINESS_ERROR = 40001, //业务请求失败
+  AUTH_ERROR = 500001, // 认证失败或TOKEN过期
+}
 
 // 接口定义
 interface CustomAxiosRequestConfig extends AxiosRequestConfig {
@@ -45,15 +52,15 @@ service.interceptors.response.use((res) => {
   const { code, data, msg } = res.data;
   if (code === 200) {
     return data;
-  } else if (code === 401) { // 未登录
-    ElMessage.error(TOKEN_INVALID || msg);
+  } else if (code === ErrorCode.BUSINESS_ERROR) { // 未登录
+    ElMessage.error("Token认证失败 请重新登录");
     setTimeout(() => {
       router.push({ path: '/login' });
     }, 1500)
-    return Promise.reject(TOKEN_INVALID || msg);
+    return Promise.reject("Token认证失败 请重新登录");
   } else { // 其他错误
-    ElMessage.error(msg || NETWORK_ERROR);
-    return Promise.reject(msg || NETWORK_ERROR);
+    ElMessage.error(msg || "网络请求异常，请稍后重试");
+    return Promise.reject(msg || "网络请求异常，请稍后重试");
   }
 })
 

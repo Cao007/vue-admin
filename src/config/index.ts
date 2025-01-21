@@ -6,9 +6,9 @@ const env = import.meta.env.MODE || 'prod';
 
 const EnvConfig: any = {
   dev: {
-    baseApi: '/',
+    baseApi: 'http://localhost:3000/admin',
     // mockApi: 'http://localhost:3000', // 本地express的mock接口
-    mockApi: 'https://apifoxmock.com/m1/5763671-5447288-default/admin', // apifox的mock接口
+    mockApi: 'https://apifoxmock.com/m1/5763671-5447288-default', // apifox的mock接口
   },
   test: {
     baseApi: '/',

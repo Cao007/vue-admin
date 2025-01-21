@@ -42,6 +42,7 @@ declare module 'vue' {
     ElSegmented: typeof import('element-plus/es')['ElSegmented']
     ElSelect: typeof import('element-plus/es')['ElSelect']
     ElSelectV2: typeof import('element-plus/es')['ElSelectV2']
+    ElSubmenu: typeof import('element-plus/es')['ElSubmenu']
     ElSubMenu: typeof import('element-plus/es')['ElSubMenu']
     ElSwitch: typeof import('element-plus/es')['ElSwitch']
     ElTabPane: typeof import('element-plus/es')['ElTabPane']
@@ -53,5 +54,6 @@ declare module 'vue' {
     Main: typeof import('./src/components/Home/Main.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    TreeMenu: typeof import('./src/components/Home/TreeMenu.vue')['default']
   }
 }

@@ -2,16 +2,15 @@
   <el-header>
     <el-row class="header-row">
       <el-col :span="12" class="header-left">
+        <!-- 收缩/展开 -->
         <el-icon :size="22" class="collapse-icon" @click="toggleSidebar">
           <DArrowRight v-if="isSidebarOpen" />
           <DArrowLeft v-else />
         </el-icon>
+
+        <!-- 面包屑 -->
         <el-breadcrumb :separator-icon="ArrowRight">
           <el-breadcrumb-item v-for="item in breadcrumbList" :to="item.path">{{ item.name }}</el-breadcrumb-item>
-          <!-- <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item :to="{ path: '/dataView' }">数据大屏</el-breadcrumb-item>
-      <el-breadcrumb-item :to="{ path: '/dataView' }">数据大屏</el-breadcrumb-item> -->
-
         </el-breadcrumb>
       </el-col>
 
@@ -95,10 +94,10 @@
 
           <el-form :model="userInfo">
             <el-form-item label="姓名" label-width="120px">
-              <el-input v-model="userInfo.name" autocomplete="off" placeholder="请输入姓名" />
+              <el-input v-model="userInfo.userName" autocomplete="off" placeholder="请输入姓名" />
             </el-form-item>
             <el-form-item label="性别" label-width="120px">
-              <el-select v-model="userInfo.gender" placeholder="请选择性别">
+              <el-select v-model="userInfo.sex" placeholder="请选择性别">
                 <el-option label="女" :value="0" />
                 <el-option label="男" :value="1" />
               </el-select>
@@ -148,9 +147,14 @@
 import { ref, watch, reactive } from 'vue';
 import { ArrowRight } from '@element-plus/icons-vue'
 import { useLayoutStore } from '@/stores/layout.ts';
+import { useUserStore } from '@/stores/user.ts';
 import { storeToRefs } from 'pinia';
 import { ElMessageBox, type TabsPaneContext } from 'element-plus';
+import storage from "@/utils/storage";
 
+/**
+ * 面包屑
+ */
 const layoutStore = useLayoutStore();
 const { isSidebarOpen, breadcrumbList } = storeToRefs(layoutStore);
 const { toggleSidebar } = layoutStore;
@@ -159,6 +163,7 @@ console.log('header breadcrumbList', breadcrumbList.value);
 watch(breadcrumbList, (newVal) => {
   console.log('header breadcrumbList newVal', newVal);
 }, { deep: true })
+
 
 /**
  * 消息通知
@@ -209,17 +214,12 @@ const handleBeforeClose = (done: () => void) => {
     .then(() => {
       done()
     })
-    .catch(() => {
-      // catch error
-    })
 }
 
 // 个人信息对话框
 const userInfoDialogVisible = ref(false)
-const userInfo = reactive({
-  name: '',
-  gender: ''
-})
+const userInfo = storage.getItem("userInfo") || {};
+console.log('userInfo', userInfo);
 
 // 个人信息确认按钮
 const handleUserConfirm = () => {
@@ -243,9 +243,6 @@ const handleLogout = (done: () => void) => {
   ElMessageBox.confirm('确定要退出登录吗？')
     .then(() => {
       done()
-    })
-    .catch(() => {
-      // catch error
     })
 }
 </script>
