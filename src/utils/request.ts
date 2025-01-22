@@ -6,17 +6,6 @@ import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 import EnvConfig from '@/config';
 import { ElMessage } from 'element-plus';
 import router from '@/router';
-import storage from './storage';
-
-// 错误状态码枚举类型
-const enum ErrorCode {
-  SUCCESS = 200,
-  PARAM_ERROR = 10001, // 参数错误
-  USER_ACCOUNT_ERROR = 20001, //账号或密码错误
-  USER_LOGIN_ERROR = 30001, // 用户未登录
-  BUSINESS_ERROR = 40001, //业务请求失败
-  AUTH_ERROR = 500001, // 认证失败或TOKEN过期
-}
 
 // 接口定义
 interface CustomAxiosRequestConfig extends AxiosRequestConfig {
@@ -41,27 +30,25 @@ const service = axios.create({
 
 // 请求拦截器
 service.interceptors.request.use((req) => {
-  const headers = req.headers;
-  const { token = "" } = storage.getItem('userInfo') || {};
-  if (!headers.Authorization) headers.Authorization = 'Bearer ' + token;
+  const token = localStorage.getItem('token');
+  req.headers.Authorization = `Bearer ${token}`;
   return req;
+}, (err) => {
+  return Promise.reject(err)
 });
 
 // 响应拦截器
 service.interceptors.response.use((res) => {
-  const { code, data, msg } = res.data;
-  if (code === 200) {
-    return data;
-  } else if (code === ErrorCode.BUSINESS_ERROR) { // 未登录
-    ElMessage.error("Token认证失败 请重新登录");
-    setTimeout(() => {
-      router.push({ path: '/login' });
-    }, 1500)
-    return Promise.reject("Token认证失败 请重新登录");
-  } else { // 其他错误
-    ElMessage.error(msg || "网络请求异常，请稍后重试");
-    return Promise.reject(msg || "网络请求异常，请稍后重试");
+  const { authorization } = res.headers;
+  authorization && localStorage.setItem('token', authorization);
+  return res;
+}, (err) => {
+  if (err.response.status === 401) {
+    localStorage.removeItem('token');
+    ElMessage.error('登录过期，请重新登录');
+    router.push('/login');
   }
+  return Promise.reject(err)
 })
 
 
@@ -70,14 +57,17 @@ service.interceptors.response.use((res) => {
  * 
  * 请求方式1:
  * request({
- *   url: '/login',
- *   method: 'post',
- *   data: params,
- *   mock: true
+ *   url: '/test',
+ *   method: 'get',
+ *   mock: false
+ * }).then((res) => {
+ *   console.log('测试接口', res)
+ * }).catch((err) => {
+ *   console.log('测试接口', err)
  * })
  * 
  * 请求方式2:
- * request.post('/login', ruleForm, { mock: true }).then()
+ * request.post('/login', ruleForm, { mock: true }).then().catch()
  */
 const request = ((options: CustomAxiosRequestConfig) => {
   options.method = options.method || 'get';

@@ -1,16 +1,24 @@
-import storage from "@/utils/storage";
 import { defineStore } from "pinia";
+import { ref } from "vue";
 
 export const useUserStore = defineStore("user", () => {
 
-    let userInfo = storage.getItem("userInfo") || {} // 获取用户信息
+    const userInfo = ref({})
 
-    function saveUserInfo(data: any) {
-        userInfo = storage.setItem("userInfo", data)
+    // 修改用户信息
+    function changeUserInfo(value: any) {
+        userInfo.value = {
+            ...userInfo.value,
+            ...value
+        }
     }
 
     return {
         userInfo,
-        saveUserInfo
+        changeUserInfo
+    }
+}, {
+    persist: {
+        pick: ['userInfo'],
     }
 })

@@ -2,9 +2,9 @@
   <el-header>
     <el-row class="header-row">
       <el-col :span="12" class="header-left">
-        <!-- 收缩/展开 -->
+        <!-- 收缩/展开按钮 -->
         <el-icon :size="22" class="collapse-icon" @click="toggleSidebar">
-          <DArrowRight v-if="isSidebarOpen" />
+          <DArrowRight v-if="isCollapse" />
           <DArrowLeft v-else />
         </el-icon>
 
@@ -79,7 +79,6 @@
           <template #dropdown>
             <el-dropdown-menu>
               <el-dropdown-item @click="userInfoDialogVisible = true">个人信息</el-dropdown-item>
-              <el-dropdown-item @click="passwordDialogVisible = true">修改密码</el-dropdown-item>
               <el-dropdown-item @click="handleLogout">退出登录</el-dropdown-item>
             </el-dropdown-menu>
           </template>
@@ -90,12 +89,13 @@
 
           <el-form :model="userInfo">
             <el-form-item label="姓名" label-width="120px">
-              <el-input v-model="userInfo.userName" autocomplete="off" placeholder="请输入姓名" />
+              <el-input v-model="userInfo.username" autocomplete="off" placeholder="请输入姓名" />
             </el-form-item>
             <el-form-item label="性别" label-width="120px">
-              <el-select v-model="userInfo.sex" placeholder="请选择性别">
+              <el-select v-model="userInfo.gender" placeholder="请选择性别">
                 <el-option label="女" :value="0" />
                 <el-option label="男" :value="1" />
+                <el-option label="保密" :value="2" />
               </el-select>
             </el-form-item>
           </el-form>
@@ -104,31 +104,6 @@
             <div class="dialog-footer">
               <el-button @click="userInfoDialogVisible = false">取消</el-button>
               <el-button type="primary" @click="handleUserConfirm">
-                确认
-              </el-button>
-            </div>
-          </template>
-        </el-dialog>
-
-        <!-- 修改密码对话框 -->
-        <el-dialog v-model="passwordDialogVisible" title="个人信息" width="500" draggable :before-close="handleBeforeClose">
-
-          <el-form :model="userInfo">
-            <el-form-item label="原密码" label-width="120px">
-              <el-input v-model="oldPassword" autocomplete="off" placeholder="请输入原密码" type="password" />
-            </el-form-item>
-            <el-form-item label="新密码" label-width="120px">
-              <el-input v-model="newPassword" autocomplete="off" placeholder="请输入新密码" type="password" />
-            </el-form-item>
-            <el-form-item label="确认密码" label-width="120px">
-              <el-input v-model="confirmPassword" autocomplete="off" placeholder="请输入确认密码" type="password" />
-            </el-form-item>
-          </el-form>
-
-          <template #footer>
-            <div class="dialog-footer">
-              <el-button @click="passwordDialogVisible = false">取消</el-button>
-              <el-button type="primary" @click="handlePasswordConfirm">
                 确认
               </el-button>
             </div>
@@ -146,19 +121,14 @@ import { useLayoutStore } from '@/stores/layout.ts';
 import { useUserStore } from '@/stores/user.ts';
 import { storeToRefs } from 'pinia';
 import { ElMessageBox, type TabsPaneContext } from 'element-plus';
-import storage from "@/utils/storage";
+import router from '@/router';
 
 /**
  * 面包屑
  */
 const layoutStore = useLayoutStore();
-const { isSidebarOpen, breadcrumbList } = storeToRefs(layoutStore);
+const { isCollapse, breadcrumbList } = storeToRefs(layoutStore);
 const { toggleSidebar } = layoutStore;
-console.log('header breadcrumbList', breadcrumbList.value);
-
-watch(breadcrumbList, (newVal) => {
-  console.log('header breadcrumbList newVal', newVal);
-}, { deep: true })
 
 
 /**
@@ -204,7 +174,7 @@ const handleFullScreen = () => {
 /**
  * 头像
  */
-// 关闭叉叉x
+// 右上角"x号"
 const handleBeforeClose = (done: () => void) => {
   ElMessageBox.confirm('确定要关闭吗？')
     .then(() => {
@@ -214,31 +184,30 @@ const handleBeforeClose = (done: () => void) => {
 
 // 个人信息对话框
 const userInfoDialogVisible = ref(false)
-const userInfo = storage.getItem("userInfo") || {};
-console.log('userInfo', userInfo);
+const userStore = useUserStore();
+const { userInfo } = storeToRefs(userStore);
 
 // 个人信息确认按钮
 const handleUserConfirm = () => {
-  console.log('userInfo', userInfo);
   userInfoDialogVisible.value = false
-}
-
-// 修改密码对话框
-const passwordDialogVisible = ref(false)
-const oldPassword = ref('')
-const newPassword = ref('')
-const confirmPassword = ref('')
-// 修改密码确认按钮
-const handlePasswordConfirm = () => {
-  console.log('password');
-  passwordDialogVisible.value = false
 }
 
 // 退出登录
 const handleLogout = (done: () => void) => {
   ElMessageBox.confirm('确定要退出登录吗？')
     .then(() => {
-      done()
+      localStorage.removeItem('token');
+      router.push('/login');
+      ElMessage({
+        type: 'success',
+        message: '已经退出登录',
+      })
+    })
+    .catch(() => {
+      ElMessage({
+        type: 'info',
+        message: '取消退出登录',
+      })
     })
 }
 </script>
@@ -285,7 +254,8 @@ const handleLogout = (done: () => void) => {
         margin-left: 20px;
         cursor: pointer;
       }
-    }  }
+    }
+  }
 
 
 }

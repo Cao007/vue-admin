@@ -5,7 +5,7 @@ import request from "@/utils/request";
  */
 export function login(params: any) {
     return request({
-        url: '/users/login',
+        url: '/admin/user/login',
         method: 'post',
         data: params,
         mock: false

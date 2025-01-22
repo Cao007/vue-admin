@@ -3,12 +3,12 @@
     <el-form ref="ruleFormRef" :model="ruleForm" :rules="rules">
 
       <h2>vue后台管理系统</h2>
-      <el-form-item label="账号" prop="userName">
-        <el-input v-model="ruleForm.userName" placeholder="请输入账号" />
+      <el-form-item label="账号" prop="username">
+        <el-input v-model="ruleForm.username" placeholder="请输入账号" />
       </el-form-item>
 
-      <el-form-item label="密码" prop="userPwd">
-        <el-input type="password" v-model="ruleForm.userPwd" placeholder="请输入密码" show-password />
+      <el-form-item label="密码" prop="password">
+        <el-input type="password" v-model="ruleForm.password" placeholder="请输入密码" show-password />
       </el-form-item>
 
       <el-form-item>
@@ -30,25 +30,25 @@ import { login } from '@/api/index.ts'
 import { useUserStore } from '@/stores/user'
 
 interface RuleForm {
-  userName: string
-  userPwd: string
+  username: string
+  password: string
 }
 
 const ruleFormRef = ref<FormInstance>()
 
 // 表单数据
 const ruleForm = reactive<RuleForm>({
-  userName: '',
-  userPwd: '',
+  username: '',
+  password: '',
 })
 
 // 表单验证规则
 const rules = reactive<FormRules<RuleForm>>({
-  userName: [
+  username: [
     { required: true, message: '账号必填', trigger: 'blur' },
     { min: 1, max: 15, message: '长度在1~15', trigger: 'blur' },
   ],
-  userPwd: [
+  password: [
     {
       required: true,
       message: '密码必填',
@@ -61,19 +61,28 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
     if (valid) {
-      login(ruleForm).then((res) => {
-        const userStore = useUserStore();
-        const { saveUserInfo } = userStore
-        saveUserInfo(res) // 保存用户信息
-        router.push('/') // 跳转首页
-        // todo 异步加载路由
-      }).catch((res) => {
-        console.log('login登录报错', res)
-      })
+      login(ruleForm)
+        .then((res) => {
+          if (res.data.code === 200) {
+            // 将用户信息存储到pinia中
+            const userStore = useUserStore()
+            const { changeUserInfo } = userStore
+            console.log('res.data.data',res.data.data);
+            changeUserInfo(res.data.data)
 
-      console.log('submit!')
+            // 跳转首页
+            router.push('/')
+
+            ElMessage.success(res.data.message)
+          } else {
+            ElMessage.error(res.data.message)
+          }
+        })
+        .catch((err) => {
+          ElMessage.error(err);
+        })
     } else {
-      console.log('表单验证错误', fields)
+      console.log('表单验证失败', fields);
     }
   })
 }

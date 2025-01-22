@@ -64,8 +64,8 @@ router.beforeEach((to, from, next) => {
     if (!token) {
       next('/login')
     } else {
-      if (!isGetRouter.value) { // 判断是否已经获取过路由，动态添加路由
-        DynamicRoutes.forEach((item) => {
+      if (!isGetRouter.value) { // 判断是否已经获取过路由
+        DynamicRoutes.forEach((item) => { // 动态添加路由
           router.addRoute("home", item)
         })
         changeIsGetRouter(true)

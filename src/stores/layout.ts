@@ -4,12 +4,10 @@ import { computed, ref, reactive } from "vue";
 export const useLayoutStore = defineStore("layout", () => {
 
   // 侧边栏是否展开
-  const isSidebarOpen = ref(false);
-  const siderWidth = ref('200px');
+  const isCollapse = ref(false);
 
   function toggleSidebar() {
-    isSidebarOpen.value = !isSidebarOpen.value;
-    siderWidth.value = isSidebarOpen.value ? '64px' : '200px';
+    isCollapse.value = !isCollapse.value;
   }
 
   // 面包屑
@@ -21,9 +19,12 @@ export const useLayoutStore = defineStore("layout", () => {
   ])
 
   return {
-    isSidebarOpen,
+    isCollapse,
     toggleSidebar,
-    siderWidth,
     breadcrumbList
+  }
+}, {
+  persist: {
+    pick: ['isCollapse']
   }
 })

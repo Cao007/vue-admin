@@ -1,17 +1,64 @@
 <template>
-  <el-aside :style="{ width: siderWidth, transition: 'width 0.3s ease' }">
+  <el-aside :width="isCollapse ? '64px' : '200px'">
+
     <el-scrollbar>
       <el-menu active-text-color="#ffd04b" background-color="#545c64" :default-active="activeMenu" text-color="#fff"
-        router :collapse="isSidebarOpen">
+        router :collapse="isCollapse" :collapse-transition="false">
 
-        <h1 :class="{ collapsed: isSidebarOpen }">
-          {{ isSidebarOpen ? "vue" : "vue通用管理系统" }}
+        <h1 :class="{ collapsed: isCollapse }">
+          {{ isCollapse ? "vue" : "vue通用管理系统" }}
         </h1>
 
         <!-- 
           递归菜单
         -->
-        <tree-menu :userMenu="userMenu" />
+        <!-- <tree-menu :userMenu="userMenu" /> -->
+        <el-menu-item index="/welcome">
+          <el-icon>
+            <DataBoard />
+          </el-icon>
+          <span>首页</span>
+        </el-menu-item>
+
+        <el-menu-item index="/center">
+          <el-icon>
+            <User />
+          </el-icon>
+          <span>个人中心</span>
+        </el-menu-item>
+
+        <el-sub-menu index="/user">
+          <template #title>
+            <el-icon>
+              <UserFilled />
+            </el-icon>
+            <span>用户管理</span>
+          </template>
+          <el-menu-item index="/User/UserAdd">添加用户</el-menu-item>
+          <el-menu-item index="/User/UserList">用户列表</el-menu-item>
+        </el-sub-menu>
+
+        <el-sub-menu index="/News">
+          <template #title>
+            <el-icon>
+              <Microphone />
+            </el-icon>
+            <span>新闻管理</span>
+          </template>
+          <el-menu-item index="/News/NewsAdd">添加新闻</el-menu-item>
+          <el-menu-item index="/News/NewsList">新闻列表</el-menu-item>
+        </el-sub-menu>
+
+        <el-sub-menu index="/Product">
+          <template #title>
+            <el-icon>
+              <Goods />
+            </el-icon>
+            <span>产品管理</span>
+          </template>
+          <el-menu-item index="/Product/ProductAdd">添加产品</el-menu-item>
+          <el-menu-item index="/Product/ProductList">产品列表</el-menu-item>
+        </el-sub-menu>
 
       </el-menu>
     </el-scrollbar>
@@ -24,23 +71,26 @@ import { ref } from 'vue';
 import { useLayoutStore } from '@/stores/layout.ts';
 import { storeToRefs } from 'pinia';
 import { getMenuList } from '@/api/index.ts';
+import { useRouter } from 'vue-router'
 
 const layoutStore = useLayoutStore();
-const { isSidebarOpen, siderWidth, breadcrumbList } = storeToRefs(layoutStore);
+const { isCollapse } = storeToRefs(layoutStore);
 
-const userMenu = ref([])
-getMenuList().then(res => {
-  userMenu.value = res;
-  console.log('userMenu', userMenu.value);
-})
+// const userMenu = ref([])
+// getMenuList().then(res => {
+//   userMenu.value = res;
+//   console.log('userMenu', userMenu.value);
+// })
 
-const activeMenu = location.hash.slice(1) || '/';
+const route = useRouter();
+const activeMenu = route.currentRoute.value.fullPath;
 </script>
 
 <style scoped lang="scss">
 .el-aside {
   height: 100vh;
   background-color: #545c64;
+  transition: width .3s ease; // 添加宽度的过渡
 
   h1 {
     text-align: center;
@@ -51,7 +101,7 @@ const activeMenu = location.hash.slice(1) || '/';
     overflow: hidden; // 防止内容超出边界
     white-space: nowrap; // 防止换行
     width: 200px; // 默认宽度
-    transition: width 0.3s ease; // 添加宽度和透明度的过渡
+    transition: width .3s ease, opacity .3s ease; // 添加宽度和透明度的过渡
   }
 
   h1.collapsed {
