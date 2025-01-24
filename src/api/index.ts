@@ -17,7 +17,7 @@ export function login(params: any) {
  */
 export function upload(params: any) {
     const data = new FormData();
-    for (const key in params.value) {
+    for (const key in params.value) { // params为ref响应式的form表单
         data.append(key, params.value[key])
     }
 

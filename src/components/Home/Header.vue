@@ -73,7 +73,7 @@
 
         <!-- 头像下拉 -->
         <el-dropdown>
-          <el-avatar :src="userInfo.avatar" :size="40" fit="cover">未显示</el-avatar>
+          <el-avatar :src="userForm.avatar" :size="40" fit="cover">未显示</el-avatar>
 
           <template #dropdown>
             <el-dropdown-menu>
@@ -86,24 +86,24 @@
         <!-- 个人信息对话框 -->
         <el-dialog v-model="userInfoDialogVisible" title="个人信息" width="500" draggable>
 
-          <el-form ref="userInfoRef" :model="userInfo" :rules="userInfoRules">
+          <el-form ref="userInfoRef" :model="userForm" :rules="userInfoRules">
 
             <el-form-item label="姓名" label-width="120px" prop="username">
-              <el-input v-model="userInfo.username" autocomplete="off" placeholder="请输入姓名" />
+              <el-input v-model="userForm.username" autocomplete="off" placeholder="请输入姓名" />
             </el-form-item>
 
             <el-form-item label="性别" label-width="120px">
-              <el-select v-model="userInfo.gender" placeholder="请选择性别">
+              <el-select v-model="userForm.gender" placeholder="请选择性别">
                 <el-option label="女" :value="0" />
                 <el-option label="男" :value="1" />
                 <el-option label="保密" :value="2" />
               </el-select>
             </el-form-item>
 
-            <el-form-item label="头像" label-width="120px" prop="file">
-              <el-upload class="avatar-uploader" action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
-                :show-file-list="false" :on-change="handleAvatarChange" :auto-upload="false">
-                <img v-if="userInfo.avatar" :src="userInfo.avatar" class="avatar" />
+            <el-form-item label="头像" label-width="120px">
+              <el-upload class="avatar-uploader" :show-file-list="false" :on-change="handleAvatarChange"
+                :auto-upload="false">
+                <img v-if="userForm.avatar" :src="userForm.avatar" class="avatar" />
                 <el-icon v-else class="avatar-uploader-icon">
                   <Plus />
                 </el-icon>
@@ -111,12 +111,12 @@
             </el-form-item>
 
             <el-form-item label="介绍" label-width="120px" prop="introduction">
-              <el-input type="textarea" autosize v-model="userInfo.introduction" autocomplete="off"
+              <el-input type="textarea" autosize v-model="userForm.introduction" autocomplete="off"
                 placeholder="请输入个人介绍" />
             </el-form-item>
 
             <el-form-item label="角色" label-width="120px">
-              <h3>{{ userInfo.role === 0 ? '普通用户' : '管理员' }}</h3>
+              <h3>{{ userForm.role === 0 ? '普通用户' : '管理员' }}</h3>
             </el-form-item>
           </el-form>
 
@@ -133,12 +133,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, reactive } from 'vue';
+import { ref, reactive, computed } from 'vue';
 import { ArrowRight } from '@element-plus/icons-vue'
 import { useLayoutStore } from '@/stores/layout.ts';
 import { useUserStore } from '@/stores/user.ts';
 import { storeToRefs } from 'pinia';
-import { ElMessageBox, type FormInstance, type FormRules, type TabsPaneContext } from 'element-plus';
+import { ElMessage, ElMessageBox, type FormInstance, type FormRules, type TabsPaneContext } from 'element-plus';
 import router from '@/router';
 import { upload } from '@/api/index.ts';
 
@@ -197,13 +197,25 @@ const handleFullScreen = () => {
 const userInfoDialogVisible = ref(false)
 const userStore = useUserStore(); // userInfo是响应式数据，故保存在pinia中
 const { userInfo } = storeToRefs(userStore);
-const { clearUserInfo } = userStore;
+const { clearUserInfo, changeUserInfo } = userStore;
+import EnvConfig from '@/config';
 
+const { avatar, username, role, introduction, gender } = userInfo.value;
+const computedAvatar = computed(() => {
+  if (!avatar) { // 设置默认在线图片的 URL
+    return 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png';
+  }
+  return avatar.startsWith('http') ? avatar : `${EnvConfig.baseApi}${avatar}`;
+});
 
-userInfo.value = { // 表单数据
-  ...userInfo.value,
+const userForm = ref({
+  avatar: computedAvatar.value,
+  username,
+  role,
+  introduction,
+  gender,
   file: null
-}
+})
 
 const userInfoRules = reactive<FormRules>({ // 表单验证规则
   username: [
@@ -213,9 +225,6 @@ const userInfoRules = reactive<FormRules>({ // 表单验证规则
   password: [
     { required: true, message: '密码必填', trigger: 'blur', },
   ],
-  file: [
-    { required: true, message: '头像必填', trigger: 'change' },
-  ],
   introduction: [
     { required: true, message: '简介必填', trigger: 'change' },
     { min: 1, max: 100, message: '长度在1~100', trigger: 'change' },
@@ -224,18 +233,16 @@ const userInfoRules = reactive<FormRules>({ // 表单验证规则
 
 // 个人信息确认按钮
 const userInfoRef = ref<FormInstance>() // 表单实例
-console.log('userInfo', userInfo.value);
+console.log('userForm上传之前', userForm.value);
 const submitForm = async (userInfoRef: FormInstance | undefined) => {
   if (!userInfoRef) return
   await userInfoRef.validate((valid, fields) => {
     if (valid) {
       // 上传接口
-      upload(userInfo)
+      upload(userForm)
         .then(res => {
-          console.log('upload res', res);
-          // userInfo.value.avatar = res.data.avatar
-          // userInfo.value.username = res.data.username
-          // userInfo.value.introduction = res.data.introduction
+          console.log('upload上传之后的res', res);
+          changeUserInfo(res.data.data)
         })
         .catch(err => {
           console.log(err);
@@ -249,16 +256,19 @@ const submitForm = async (userInfoRef: FormInstance | undefined) => {
 
 // 头像上传
 const handleAvatarChange = (file: any) => {
-  userInfo.value.file = file.raw
-  userInfo.value.avatar = URL.createObjectURL(file.raw)
+  console.log('file', file);
+  console.log('URL.createObjectURL(file.raw)', URL.createObjectURL(file.raw));
+
+  userForm.value.file = file.raw
+  userForm.value.avatar = URL.createObjectURL(file.raw)
 }
 
 // 退出登录
 const handleLogout = (done: () => void) => {
   ElMessageBox.confirm('确定要退出登录吗？')
     .then(() => {
-      localStorage.removeItem('token'); // token不是响应式数据，故保存在localStorage中
-      clearUserInfo(); // 清除pinia中的userInfo
+      localStorage.removeItem('token'); // token不是响应式数据，故直接保存在localStorage中
+      clearUserInfo(); // 清除pinia中的userInfo，同时清除了在localStorage中的userInfo
       router.push('/login');
       ElMessage({
         type: 'success',
