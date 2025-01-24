@@ -71,10 +71,9 @@
         </el-tooltip>
 
 
-        <!-- 头像 -->
+        <!-- 头像下拉 -->
         <el-dropdown>
-          <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" :size="40"
-            fit="cover">默认头像</el-avatar>
+          <el-avatar :src="userInfo.avatar" :size="40" fit="cover">未显示</el-avatar>
 
           <template #dropdown>
             <el-dropdown-menu>
@@ -85,12 +84,14 @@
         </el-dropdown>
 
         <!-- 个人信息对话框 -->
-        <el-dialog v-model="userInfoDialogVisible" title="个人信息" width="500" draggable :before-close="handleBeforeClose">
+        <el-dialog v-model="userInfoDialogVisible" title="个人信息" width="500" draggable>
 
-          <el-form :model="userInfo">
-            <el-form-item label="姓名" label-width="120px">
+          <el-form ref="userInfoRef" :model="userInfo" :rules="userInfoRules">
+
+            <el-form-item label="姓名" label-width="120px" prop="username">
               <el-input v-model="userInfo.username" autocomplete="off" placeholder="请输入姓名" />
             </el-form-item>
+
             <el-form-item label="性别" label-width="120px">
               <el-select v-model="userInfo.gender" placeholder="请选择性别">
                 <el-option label="女" :value="0" />
@@ -98,14 +99,31 @@
                 <el-option label="保密" :value="2" />
               </el-select>
             </el-form-item>
+
+            <el-form-item label="头像" label-width="120px" prop="file">
+              <el-upload class="avatar-uploader" action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+                :show-file-list="false" :on-change="handleAvatarChange" :auto-upload="false">
+                <img v-if="userInfo.avatar" :src="userInfo.avatar" class="avatar" />
+                <el-icon v-else class="avatar-uploader-icon">
+                  <Plus />
+                </el-icon>
+              </el-upload>
+            </el-form-item>
+
+            <el-form-item label="介绍" label-width="120px" prop="introduction">
+              <el-input type="textarea" autosize v-model="userInfo.introduction" autocomplete="off"
+                placeholder="请输入个人介绍" />
+            </el-form-item>
+
+            <el-form-item label="角色" label-width="120px">
+              <h3>{{ userInfo.role === 0 ? '普通用户' : '管理员' }}</h3>
+            </el-form-item>
           </el-form>
 
           <template #footer>
             <div class="dialog-footer">
               <el-button @click="userInfoDialogVisible = false">取消</el-button>
-              <el-button type="primary" @click="handleUserConfirm">
-                确认
-              </el-button>
+              <el-button type="primary" @click="submitForm(userInfoRef)">更新</el-button>
             </div>
           </template>
         </el-dialog>
@@ -120,8 +138,9 @@ import { ArrowRight } from '@element-plus/icons-vue'
 import { useLayoutStore } from '@/stores/layout.ts';
 import { useUserStore } from '@/stores/user.ts';
 import { storeToRefs } from 'pinia';
-import { ElMessageBox, type TabsPaneContext } from 'element-plus';
+import { ElMessageBox, type FormInstance, type FormRules, type TabsPaneContext } from 'element-plus';
 import router from '@/router';
+import { upload } from '@/api/index.ts';
 
 /**
  * 面包屑
@@ -174,29 +193,72 @@ const handleFullScreen = () => {
 /**
  * 头像
  */
-// 右上角"x号"
-const handleBeforeClose = (done: () => void) => {
-  ElMessageBox.confirm('确定要关闭吗？')
-    .then(() => {
-      done()
-    })
-}
-
 // 个人信息对话框
 const userInfoDialogVisible = ref(false)
-const userStore = useUserStore();
+const userStore = useUserStore(); // userInfo是响应式数据，故保存在pinia中
 const { userInfo } = storeToRefs(userStore);
+const { clearUserInfo } = userStore;
+
+
+userInfo.value = { // 表单数据
+  ...userInfo.value,
+  file: null
+}
+
+const userInfoRules = reactive<FormRules>({ // 表单验证规则
+  username: [
+    { required: true, message: '账号必填', trigger: 'change' },
+    { min: 1, max: 15, message: '长度在1~15', trigger: 'change' },
+  ],
+  password: [
+    { required: true, message: '密码必填', trigger: 'blur', },
+  ],
+  file: [
+    { required: true, message: '头像必填', trigger: 'change' },
+  ],
+  introduction: [
+    { required: true, message: '简介必填', trigger: 'change' },
+    { min: 1, max: 100, message: '长度在1~100', trigger: 'change' },
+  ]
+})
 
 // 个人信息确认按钮
-const handleUserConfirm = () => {
-  userInfoDialogVisible.value = false
+const userInfoRef = ref<FormInstance>() // 表单实例
+console.log('userInfo', userInfo.value);
+const submitForm = async (userInfoRef: FormInstance | undefined) => {
+  if (!userInfoRef) return
+  await userInfoRef.validate((valid, fields) => {
+    if (valid) {
+      // 上传接口
+      upload(userInfo)
+        .then(res => {
+          console.log('upload res', res);
+          // userInfo.value.avatar = res.data.avatar
+          // userInfo.value.username = res.data.username
+          // userInfo.value.introduction = res.data.introduction
+        })
+        .catch(err => {
+          console.log(err);
+        })
+      userInfoDialogVisible.value = false
+    } else {
+      console.log('表单验证失败', fields);
+    }
+  })
+}
+
+// 头像上传
+const handleAvatarChange = (file: any) => {
+  userInfo.value.file = file.raw
+  userInfo.value.avatar = URL.createObjectURL(file.raw)
 }
 
 // 退出登录
 const handleLogout = (done: () => void) => {
   ElMessageBox.confirm('确定要退出登录吗？')
     .then(() => {
-      localStorage.removeItem('token');
+      localStorage.removeItem('token'); // token不是响应式数据，故保存在localStorage中
+      clearUserInfo(); // 清除pinia中的userInfo
       router.push('/login');
       ElMessage({
         type: 'success',
@@ -246,17 +308,41 @@ const handleLogout = (done: () => void) => {
         cursor: pointer;
       }
 
-      // ul {
-      //   list-style: none;
-      // }
-
       .el-avatar {
         margin-left: 20px;
         cursor: pointer;
       }
+
+      // 个人信息对话框，样式穿透
+      :deep(.el-dialog) {
+        .avatar-uploader .avatar {
+          width: 178px;
+          height: 178px;
+          display: block;
+        }
+
+        .avatar-uploader .el-upload {
+          border: 1px dashed var(--el-border-color);
+          border-radius: 6px;
+          cursor: pointer;
+          position: relative;
+          overflow: hidden;
+          transition: var(--el-transition-duration-fast);
+        }
+
+        .avatar-uploader .el-upload:hover {
+          border-color: var(--el-color-primary);
+        }
+
+        .el-icon.avatar-uploader-icon {
+          font-size: 28px;
+          color: #8c939d;
+          width: 178px;
+          height: 178px;
+          text-align: center;
+        }
+      }
     }
   }
-
-
 }
 </style>

@@ -24,7 +24,7 @@
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
-import type { FormInstance, FormRules } from 'element-plus'
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import router from '@/router'
 import { login } from '@/api/index.ts'
 import { useUserStore } from '@/stores/user'
@@ -67,7 +67,6 @@ const submitForm = async (formEl: FormInstance | undefined) => {
             // 将用户信息存储到pinia中
             const userStore = useUserStore()
             const { changeUserInfo } = userStore
-            console.log('res.data.data',res.data.data);
             changeUserInfo(res.data.data)
 
             // 跳转首页

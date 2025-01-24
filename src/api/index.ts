@@ -13,13 +13,21 @@ export function login(params: any) {
 }
 
 /**
- * 菜单列表
+ * 上传接口
  */
-export function getMenuList(params?: any) {
+export function upload(params: any) {
+    const data = new FormData();
+    for (const key in params.value) {
+        data.append(key, params.value[key])
+    }
+
     return request({
-        url: '/menu/list',
-        method: 'get',
-        data: params,
-        mock: true
+        url: '/admin/upload',
+        method: 'post',
+        data: data,
+        mock: false,
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        }
     })
 }

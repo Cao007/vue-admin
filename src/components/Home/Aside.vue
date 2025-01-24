@@ -70,17 +70,10 @@
 import { ref } from 'vue';
 import { useLayoutStore } from '@/stores/layout.ts';
 import { storeToRefs } from 'pinia';
-import { getMenuList } from '@/api/index.ts';
 import { useRouter } from 'vue-router'
 
 const layoutStore = useLayoutStore();
 const { isCollapse } = storeToRefs(layoutStore);
-
-// const userMenu = ref([])
-// getMenuList().then(res => {
-//   userMenu.value = res;
-//   console.log('userMenu', userMenu.value);
-// })
 
 const route = useRouter();
 const activeMenu = route.currentRoute.value.fullPath;
