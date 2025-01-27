@@ -101,13 +101,7 @@
             </el-form-item>
 
             <el-form-item label="头像" label-width="120px">
-              <el-upload class="avatar-uploader" :show-file-list="false" :on-change="handleAvatarChange"
-                :auto-upload="false">
-                <img v-if="userForm.avatar" :src="userForm.avatar" class="avatar" />
-                <el-icon v-else class="avatar-uploader-icon">
-                  <Plus />
-                </el-icon>
-              </el-upload>
+              <Upload :avatar="userForm.avatar" @uploadaAvatar="uploadaAvatar"></Upload>
             </el-form-item>
 
             <el-form-item label="介绍" label-width="120px" prop="introduction">
@@ -141,6 +135,7 @@ import { storeToRefs } from 'pinia';
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules, type TabsPaneContext } from 'element-plus';
 import router from '@/router';
 import { upload } from '@/api/index.ts';
+import Upload from '../Upload/Upload.vue';
 
 /**
  * 面包屑
@@ -201,6 +196,7 @@ const { clearUserInfo, changeUserInfo } = userStore;
 import EnvConfig from '@/config';
 
 const { avatar, username, role, introduction, gender } = userInfo.value;
+
 const computedAvatar = computed(() => {
   if (!avatar) { // 设置默认在线图片的 URL
     return 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png';
@@ -217,7 +213,13 @@ const userForm = ref({
   file: null
 })
 
-const userInfoRules = reactive<FormRules>({ // 表单验证规则
+const uploadaAvatar = (fileAndAvatar: any) => {
+  userForm.value.file = fileAndAvatar.value.file;
+  userForm.value.avatar = fileAndAvatar.value.avatar;
+}
+
+// 表单验证规则
+const userInfoRules = reactive<FormRules>({
   username: [
     { required: true, message: '账号必填', trigger: 'change' },
     { min: 1, max: 15, message: '长度在1~15', trigger: 'change' },
@@ -252,15 +254,6 @@ const submitForm = async (userInfoRef: FormInstance | undefined) => {
       console.log('表单验证失败', fields);
     }
   })
-}
-
-// 头像上传
-const handleAvatarChange = (file: any) => {
-  console.log('file', file);
-  console.log('URL.createObjectURL(file.raw)', URL.createObjectURL(file.raw));
-
-  userForm.value.file = file.raw
-  userForm.value.avatar = URL.createObjectURL(file.raw)
 }
 
 // 退出登录
@@ -324,34 +317,7 @@ const handleLogout = (done: () => void) => {
       }
 
       // 个人信息对话框，样式穿透
-      :deep(.el-dialog) {
-        .avatar-uploader .avatar {
-          width: 178px;
-          height: 178px;
-          display: block;
-        }
-
-        .avatar-uploader .el-upload {
-          border: 1px dashed var(--el-border-color);
-          border-radius: 6px;
-          cursor: pointer;
-          position: relative;
-          overflow: hidden;
-          transition: var(--el-transition-duration-fast);
-        }
-
-        .avatar-uploader .el-upload:hover {
-          border-color: var(--el-color-primary);
-        }
-
-        .el-icon.avatar-uploader-icon {
-          font-size: 28px;
-          color: #8c939d;
-          width: 178px;
-          height: 178px;
-          text-align: center;
-        }
-      }
+      :deep(.el-dialog) {}
     }
   }
 }
