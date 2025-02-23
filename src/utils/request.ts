@@ -40,41 +40,49 @@ service.interceptors.request.use(
  * 响应拦截器
  */
 service.interceptors.response.use(
+  // 第一个回调函数中，只会在HTTP状态码是2xx时执行
   (response) => {
     finishProgress(); // 响应成功时结束进度条
-    const { code, message, data } = response.data;
+
+    const { code, message } = response.data;
+
+    // 处理业务上的失败（比如后端返回的code不是200，而是201等）
     if (code !== 200) {
-      ElMessage.error(message || "响应非200");
+      ElMessage.error(message || "业务上的请求失败,响应非200");
       return Promise.reject(new Error(message));
     }
+
+    ElMessage.success(message || "请求成功");
     return response.data;
   },
+  // 第二个回调函数中，会在HTTP状态码不是2xx时执行
   (error) => {
     finishProgress(); // 响应错误时结束进度条
-    const status = error.response?.status || 0;
-    const message =
-      error.response?.data?.message || error.message || "网络错误";
+    console.log("非2xx", error);
 
+    const status = error.response?.status || 0;
+    let message = "";
     const userStore = useUserStore();
 
     switch (status) {
       case 401:
-        ElMessage.error("未授权，请重新登录");
+        message = "未授权，请重新登录";
         userStore.logout();
         window.location.href = "/login";
         break;
       case 403:
-        ElMessage.error("拒绝访问");
+        message = "拒绝访问";
         break;
       case 404:
-        ElMessage.error(`请求地址出错: ${error.response.config.url}`);
+        message = `请求地址出错: ${error.response.config.url}`;
         break;
       case 500:
-        ElMessage.error("服务器内部错误");
+        message = "服务器内部错误";
         break;
       default:
-        ElMessage.error(message);
+        message = error.message || "请求失败";
     }
+    ElMessage.error(message);
     return Promise.reject(error);
   }
 );

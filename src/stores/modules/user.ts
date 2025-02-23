@@ -16,7 +16,6 @@ export const useUserStore = defineStore(
       const res: loginResult = await loginApi(data);
       token.value = res.data.token;
       localStorage.setItem("token", res.data.token);
-      console.log("user仓库登录请求 res", res);
       return res;
     };
 
@@ -24,7 +23,6 @@ export const useUserStore = defineStore(
     const getUserInfo = async () => {
       const res: userInfoResult = await userInfoApi();
       userInfo.value = res.data;
-      console.log("user仓库获取用户信息 res", res);
       return res;
     };
 

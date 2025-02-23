@@ -34,6 +34,12 @@ const createUserList = function () {
 
 /**
  * mock用户相关接口
+ * promise中data返回的业务数据格式为
+ * {
+ *   code: 200,
+ *   message: "成功",
+ *   data: {}
+ * }
  */
 export default [
   // 1.登录接口
@@ -99,7 +105,7 @@ export default [
       return {
         code: 200,
         message: "退出登录成功",
-        data: null,
+        data: {},
       };
     },
   },

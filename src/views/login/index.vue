@@ -76,29 +76,15 @@ const submitForm = async () => {
   try {
     await loginFormRef.value.validate();
     const res = await login(loginFormData);
-    console.log("登录页面login res", res);
-
-    if (res.code === 200) {
-      ElNotification({
-        type: "success",
-        title: "登录成功",
-        message: `${getTime()}`,
-      });
-      router.push({ path: (route.query.redirect as string) || "/" });
-    } else {
-      ElNotification({
-        type: "error",
-        title: "登录失败",
-        message: res.message || "登录失败，请检查用户名和密码",
-      });
-    }
-  } catch (err: any) {
-    console.log("登录请求错误", err);
     ElNotification({
-      type: "error",
-      title: "登录失败",
-      message: err.message || "服务器错误",
+      type: "success",
+      title: res.message,
+      message: `${getTime()}`,
     });
+    router.push({ path: (route.query.redirect as string) || "/" });
+  } catch (err: any) {
+    // 业务上的请求失败,响应非200
+    console.log(err);
   }
 };
 

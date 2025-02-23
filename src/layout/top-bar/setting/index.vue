@@ -26,7 +26,6 @@
 <script lang="ts" setup>
 import { useLayoutStore } from "@/stores/modules/layout";
 import { useUserStore } from "@/stores/modules/user";
-import { ElMessage } from "element-plus";
 import { storeToRefs } from "pinia";
 import { useRouter, useRoute } from "vue-router";
 
@@ -54,22 +53,14 @@ const { userInfo } = storeToRefs(userStore);
 const { logout } = userStore;
 
 // 退出登录
-const handleLogout = () => {
-  logout()
-    .then((res) => {
-      // 携带重定向地址，跳转到登录页
-      router.push({ path: "/login", query: { redirect: route.path } });
-      ElMessage({
-        type: "success",
-        message: res.message,
-      });
-    })
-    .catch((err) => {
-      ElMessage({
-        type: "error",
-        message: err,
-      });
-    });
+const handleLogout = async () => {
+  try {
+    await logout();
+    // 携带重定向地址，跳转到登录页
+    router.push({ path: "/login", query: { redirect: route.path } });
+  } catch (err: any) {
+    console.log(err);
+  }
 };
 </script>
 
