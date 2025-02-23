@@ -6,7 +6,7 @@
         ref="loginFormRef"
         :model="loginFormData"
         :rules="rules"
-        label-width="auto"
+        label-width="68px"
         status-icon
       >
         <el-form-item label="用户名" prop="username">
