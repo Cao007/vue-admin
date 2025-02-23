@@ -1,5 +1,5 @@
 import request from "@/utils/request";
-import type { loginData, loginResult, userInfoResult } from "./type";
+import type { LoginData, LoginResponse, UserInfoResponse } from "./type";
 
 //项目用户相关的请求地址
 enum API {
@@ -12,11 +12,12 @@ enum API {
 }
 
 // 1.登录接口
-export const loginApi = (data: loginData) =>
-  request.post<loginResult>(API.LOGIN_URL, data);
+export const loginApi = (data: LoginData) =>
+  request.post<LoginResponse>(API.LOGIN_URL, data);
 
 // 2.获取用户信息接口
-export const userInfoApi = () => request.get<userInfoResult>(API.USERINFO_URL);
+export const userInfoApi = () =>
+  request.get<UserInfoResponse>(API.USERINFO_URL);
 
 // 3.退出登录接口
 export const logoutApi = () => request.post<any>(API.LOGOUT_URL);

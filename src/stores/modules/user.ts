@@ -1,5 +1,10 @@
 import { loginApi, userInfoApi, logoutApi } from "@/api/user";
-import type { loginData, loginResult, userInfoResult } from "@/api/user/type";
+import type {
+  LoginData,
+  LoginResponse,
+  UserInfoResponse,
+  UserInfoResultData,
+} from "@/api/user/type";
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { constantRoutes } from "@/router/routes";
@@ -8,12 +13,12 @@ export const useUserStore = defineStore(
   "User",
   () => {
     const token = ref(localStorage.getItem("token") ?? "");
-    const userInfo = ref({} as userInfoResult);
+    const userInfo = ref({} as UserInfoResultData);
     const routes = ref(constantRoutes);
 
     // 1.登录请求
-    const login = async (data: loginData) => {
-      const res: loginResult = await loginApi(data);
+    const login = async (data: LoginData) => {
+      const res: LoginResponse = await loginApi(data);
       token.value = res.data.token;
       localStorage.setItem("token", res.data.token);
       return res;
@@ -21,7 +26,7 @@ export const useUserStore = defineStore(
 
     // 2.获取用户信息请求
     const getUserInfo = async () => {
-      const res: userInfoResult = await userInfoApi();
+      const res: UserInfoResponse = await userInfoApi();
       userInfo.value = res.data;
       return res;
     };
@@ -30,7 +35,7 @@ export const useUserStore = defineStore(
     const logout = async () => {
       const res = await logoutApi();
       token.value = "";
-      userInfo.value = {} as userInfoResult;
+      userInfo.value = {} as UserInfoResultData;
       routes.value = constantRoutes; // 确保重置路由数据，否则可能存在动态路由缓存问题
       localStorage.clear();
       return res;

@@ -19,7 +19,7 @@ const router = createRouter({
 // **全局前置守卫**
 router.beforeEach(async (to, from, next) => {
   startProgress(); // 开始进度条
-  document.title = `${import.meta.env.VITE_APP_TITLE} ${to.meta.title}`; // 设置页面标题
+  document.title = `${import.meta.env.VITE_APP_TITLE} ${to.meta.title || ""}`; // 设置页面标题
 
   const userStore = useUserStore(pinia);
   const token = userStore.token;
