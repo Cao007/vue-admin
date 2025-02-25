@@ -16,7 +16,7 @@
       </div>
     </div>
 
-    <div class="right-container">
+    <div class="right-container" :class="{ 'aside-fold': isFold }">
       <!-- 顶部导航栏 -->
       <div class="top-bar">
         <TopBar></TopBar>
@@ -104,6 +104,7 @@ const route = useRoute();
     display: flex;
     flex-direction: column;
     height: 100%;
+    width: calc(100% - $aside-width);
 
     .top-bar {
       display: flex;
