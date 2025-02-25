@@ -9,7 +9,11 @@
       <!-- 左侧菜单栏 -->
       <div class="menu">
         <el-scrollbar>
-          <el-menu :default-active="route.path" :collapse="isFold">
+          <el-menu
+            :default-active="route.path"
+            :collapse="isFold"
+            :router="true"
+          >
             <Menu :menuList="menuList"></Menu>
           </el-menu>
         </el-scrollbar>
