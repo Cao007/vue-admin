@@ -7,7 +7,7 @@ enum API {
 }
 
 // 1.品牌列表接口
-export const getTrademarkList = ({ page = 1, limit = 10 }: TrademarkParams) =>
+export const trademarkListApi = ({ page = 1, limit = 10 }: TrademarkParams) =>
   request.get<TrademarkListResponse>(
     `${API.TradeMarkList_URL}/${page}/${limit}`
   );

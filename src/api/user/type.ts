@@ -5,14 +5,14 @@ export interface LoginData {
 }
 
 // 定义响应数据类型
-interface Response<T = {}> {
+export interface Response<T = {}> {
   code: number;
   message: string;
   data: T;
 }
 
 // 定义登录的响应数据中data的类型
-interface LoginResultData {
+export interface LoginResultData {
   token: string;
 }
 

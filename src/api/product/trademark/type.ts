@@ -5,21 +5,21 @@ export interface TrademarkParams {
 }
 
 // 定义响应数据类型
-interface Response<T = {}> {
+export interface Response<T = {}> {
   code: number;
   message: string;
   data: T;
 }
 
 // 定义品牌的响应数据中data的类型
-interface TrademarkListData {
-  records: [
-    {
-      id: number;
-      tmName: string;
-      logoUrl: string;
-    }
-  ];
+export interface Trademark {
+  id: number;
+  tmName: string;
+  logoUrl: string;
+}
+
+export interface TrademarkListData {
+  records: Trademark[];
   total: number;
   size: number;
   current: number;
