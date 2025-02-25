@@ -34,5 +34,16 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
+    server: {
+      port: 5173,
+      proxy: {
+        [env.VITE_APP_BASE_API]: {
+          target: env.VITE_APP_BASE_URL,
+          changeOrigin: true,
+          rewrite: (path) =>
+            path.replace(new RegExp(`^${env.VITE_APP_BASE_API}`), ""),
+        },
+      },
+    },
   };
 });

@@ -8,7 +8,7 @@ import { useUserStore } from "@/stores/modules/user";
  * 创建axios实例
  */
 const service = axios.create({
-  baseURL: import.meta.env.VITE_APP_BASE_URL,
+  baseURL: import.meta.env.VITE_APP_BASE_API, // 基础路径上会携带/api
   timeout: 5000,
 });
 
