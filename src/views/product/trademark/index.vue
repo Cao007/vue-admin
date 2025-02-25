@@ -46,6 +46,7 @@
 
 <script lang="ts" setup>
 import { onBeforeUnmount, onMounted, ref } from "vue";
+import { getTrademarkList } from "@/api/product/trademark";
 
 const tableData: any = [];
 
@@ -56,16 +57,22 @@ const handleDelete = (index: number, row: any) => {
   console.log(index, row);
 };
 
+// 表格重新渲染
 const tableKey = ref(0);
-
 const handleResize = () => {
   tableKey.value++; // 触发表格重新渲染
 };
-
-onMounted(() => {
+onMounted(async () => {
   window.addEventListener("resize", handleResize);
-});
 
+  // 发起请求获取品牌列表数据
+  try {
+    const res = await getTrademarkList({ page: 1, limit: 10 });
+    console.log(res);
+  } catch (error) {
+    console.log(error);
+  }
+});
 onBeforeUnmount(() => {
   window.removeEventListener("resize", handleResize);
 });
