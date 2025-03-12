@@ -25,7 +25,7 @@ service.interceptors.request.use(
 
     // 如果存在token，则添加到请求头中
     if (token) {
-      config.headers.Authorization = `Bearer ${userStore.token}`;
+      config.headers.token = token;
     }
     return config;
   },
