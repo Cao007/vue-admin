@@ -46,16 +46,17 @@ service.interceptors.response.use(
     const { code, message, errors } = response.data;
 
     // 处理业务上的失败（比如后端返回的code不是200，而是201等）
-    if (code !== 200) {
+    if (code === 200) {
+      return response.data;
+    } else if (code === 201) {
+      return response.data;
+    } else {
       const errorMessage = errors?.length
         ? errors.join(",")
         : message || "业务上的请求失败,响应非200";
       ElMessage.error(errorMessage);
       return Promise.reject(new Error(errorMessage));
     }
-
-    // ElMessage.success(message || "请求成功");
-    return response.data;
   },
   // 第二个回调函数中，会在HTTP状态码不是2xx时执行
   (error) => {
