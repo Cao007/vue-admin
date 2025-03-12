@@ -1,6 +1,6 @@
 // 定义请求参数类型
 export interface LoginData {
-  username: string;
+  login: string;
   password: string;
 }
 
@@ -17,17 +17,31 @@ export interface LoginResultData {
 }
 
 // 定义用户信息的响应数据中data的类型
+// export interface UserInfoResultData {
+//   id: number;
+//   avatar: string;
+//   buttons: string[];
+//   desc: string;
+//   password: string;
+//   roles: string[];
+//   routes: string[];
+//   token: string;
+//   userId: number;
+//   username: string;
+// }
 export interface UserInfoResultData {
   id: number;
-  avatar: string;
-  buttons: string[];
-  desc: string;
-  password: string;
-  roles: string[];
-  routes: string[];
-  token: string;
-  userId: number;
+  email: string;
   username: string;
+  password: string;
+  nickname: string;
+  gender: number;
+  company: string;
+  introduce: string;
+  role: number;
+  avatar: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export type LoginResponse = Response<LoginResultData>;

@@ -25,8 +25,7 @@ service.interceptors.request.use(
 
     // 如果存在token，则添加到请求头中
     if (token) {
-      // config.headers.Authorization = `Bearer ${userStore.token}`;
-      config.headers.token = token;
+      config.headers.Authorization = `Bearer ${userStore.token}`;
     }
     return config;
   },
@@ -44,15 +43,18 @@ service.interceptors.response.use(
   (response) => {
     finishProgress(); // 响应成功时结束进度条
 
-    const { code, message } = response.data;
+    const { code, message, errors } = response.data;
 
     // 处理业务上的失败（比如后端返回的code不是200，而是201等）
     if (code !== 200) {
-      ElMessage.error(message || "业务上的请求失败,响应非200");
-      return Promise.reject(new Error(message));
+      const errorMessage = errors?.length
+        ? errors.join(",")
+        : message || "业务上的请求失败,响应非200";
+      ElMessage.error(errorMessage);
+      return Promise.reject(new Error(errorMessage));
     }
 
-    ElMessage.success(message || "请求成功");
+    // ElMessage.success(message || "请求成功");
     return response.data;
   },
   // 第二个回调函数中，会在HTTP状态码不是2xx时执行
@@ -61,28 +63,32 @@ service.interceptors.response.use(
     console.log("非2xx", error);
 
     const status = error.response?.status || 0;
-    let message = "";
+    const { message, errors } = error.response?.data || {};
+    let errorMessage = errors?.length
+      ? errors.join(",")
+      : message || "请求失败";
+
     const userStore = useUserStore();
 
     switch (status) {
       case 401:
-        message = "未授权，请重新登录";
+        errorMessage = `未授权，请重新登录：${errorMessage}`;
         userStore.logout();
-        window.location.href = "/login";
+        // window.location.href = "/login";
         break;
       case 403:
-        message = "拒绝访问";
+        errorMessage = "拒绝访问";
         break;
       case 404:
-        message = `请求地址出错: ${error.response.config.url}`;
+        errorMessage = `请求地址出错: ${errorMessage}`;
         break;
       case 500:
-        message = "服务器内部错误";
+        errorMessage = "服务器内部错误";
         break;
       default:
-        message = error.message || "请求失败";
+        errorMessage = error.message || "请求失败";
     }
-    ElMessage.error(message);
+    ElMessage.error(errorMessage);
     return Promise.reject(error);
   }
 );

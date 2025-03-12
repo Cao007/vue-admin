@@ -2,13 +2,15 @@ import request from "@/utils/request";
 import type { LoginData, LoginResponse, UserInfoResponse } from "./type";
 
 //项目用户相关的请求地址
+// enum API {
+//   LOGIN_URL = "/mock/user/login",
+//   USERINFO_URL = "/mock/user/info",
+//   LOGOUT_URL = "/mock/user/logout",
+// }
 enum API {
-  // LOGIN_URL = "/admin/acl/index/login",
-  LOGIN_URL = "/mock/user/login",
-  // USERINFO_URL = "/admin/acl/index/info",
-  USERINFO_URL = "/mock/user/info",
-  // LOGOUT_URL = "/admin/acl/index/logout",
-  LOGOUT_URL = "/mock/user/logout",
+  LOGIN_URL = "/admin/auth/sign_in",
+  USERINFO_URL = "/admin/users/me",
+  LOGOUT_URL = "/admin/auth/logout",
 }
 
 // 1.登录接口

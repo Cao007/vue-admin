@@ -9,8 +9,8 @@
         label-width="68px"
         status-icon
       >
-        <el-form-item label="用户名" prop="username">
-          <el-input v-model="loginFormData.username">
+        <el-form-item label="用户名" prop="login">
+          <el-input v-model="loginFormData.login">
             <template #prefix>
               <svg-icon name="user" />
             </template>
@@ -51,11 +51,11 @@ import { getTime } from "@/utils/time";
 
 const loginFormRef = ref();
 const loginFormData = reactive({
-  username: "admin",
-  password: "111111",
+  login: "",
+  password: "",
 });
 const rules = reactive({
-  username: [
+  login: [
     { required: true, message: "姓名必填", trigger: "blur" },
     { min: 3, max: 20, message: "长度在3~20", trigger: "blur" },
   ],
