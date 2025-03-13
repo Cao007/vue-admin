@@ -45,7 +45,7 @@ service.interceptors.response.use(
 
     const { code, message, errors } = response.data;
 
-    // 处理业务上的失败（比如后端返回的code不是200，而是201等）
+    // 处理业务上的失败（比如后端返回的code不是200，而是2xx等）
     if (code === 200) {
       return response.data;
     } else if (code === 201) {
@@ -58,7 +58,7 @@ service.interceptors.response.use(
       return Promise.reject(new Error(errorMessage));
     }
   },
-  // 第二个回调函数中，会在HTTP状态码不是2xx时执行
+  // 第二个回调函数中，会在HTTP状态码不是2xx，而是3xx、4xx等
   (error) => {
     finishProgress(); // 响应错误时结束进度条
     console.log("非2xx", error);
@@ -72,6 +72,9 @@ service.interceptors.response.use(
     const userStore = useUserStore();
 
     switch (status) {
+      case 400:
+        errorMessage = `请求参数错误：${errorMessage}`;
+        break;
       case 401:
         errorMessage = `未授权，请重新登录：${errorMessage}`;
         userStore.logout();

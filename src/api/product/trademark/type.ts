@@ -1,7 +1,7 @@
 // 定义请求参数类型
 export interface TrademarkParams {
-  page: number;
-  limit: number;
+  currentPage: number;
+  pageSize: number;
 }
 
 // 定义响应数据类型
@@ -13,18 +13,20 @@ export interface Response<T = {}> {
 
 // 定义品牌的响应数据中data的类型
 export interface Trademark {
-  id: number;
+  id?: number;
   tmName: string;
   logoUrl: string;
 }
 
+// 定义品牌列表的响应数据类型
 export interface TrademarkListData {
-  records: Trademark[];
-  total: number;
-  size: number;
-  current: number;
-  pages: number;
-  searchCount: boolean;
+  trademarks: Trademark[];
+  pagination: {
+    total: number;
+    currentPage: number;
+    pageSize: number;
+  };
 }
 
 export type TrademarkListResponse = Response<TrademarkListData>;
+export type TrademarkResponse = Response<Trademark>;
